@@ -8,3 +8,4 @@ if external_module_dir not in sys.path:
 import spmg_pygame.gameobject as gameobject
 from spmg_pygame.gameobject import Gameobject
 from spmg_pygame.renderer import Canvas_Renderer, ShaderVariable, ShaderVarTypes
+from spmg_renderer.renderer import Renderer
