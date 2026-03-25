@@ -12,21 +12,23 @@ layout(std430, binding = 2) buffer PosBuffer {
 } agent_positions;
 
 layout(std430, binding = 3) buffer DirBuffer {
-    float values[];
+    vec2 values[];
 } agent_directions;
 
 void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
     
+    // Average the color with its neighbors to create a blur effect
     vec4 color = imageLoad(InputImage, global_id.xy);
-    color = vec4(0, 0, 0, 1); // Default to black
-    for (int i = 0; i < agent_positions.values.length(); i++) {
-        vec2 pos = agent_positions.values[i];
-        if (distance(vec2(pos), vec2(global_id)) < 10) {
-            color = vec4(1, 1, 1, 1);
-            break;
-        }
-    }
-    
+    // color.rgb -= 0.01;
+    // vec4 middle = imageLoad(InputImage, global_id.xy);
+    // vec4 right = imageLoad(InputImage, global_id.xy+ivec2(10, 0));
+    // vec4 left = imageLoad(InputImage, global_id.xy+ivec2(0, -1));
+    // vec4 top = imageLoad(InputImage, global_id.xy+ivec2(0, 1));
+    // vec4 bottom = imageLoad(InputImage, global_id.xy+ivec2(-1, 0));
+    // if (right.r > 0.0) {
+    //     color = vec4(1, 0, 1, 1);
+    // }
+
     imageStore(OutputImage, global_id, color);
 }

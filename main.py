@@ -22,6 +22,7 @@ class SlimeRenderer():
             relative_position=Vector2(0.5, 0.5),
             group_sizes=[(16, 16)],
             size=Vector2(self.window_size[0], self.window_size[1]),
+            default_color=(0, 0, 0, 255),
             shader_vars=[[
                 ShaderVariable(
                     name="agent_positions",
@@ -32,7 +33,7 @@ class SlimeRenderer():
                 ),
                 ShaderVariable(
                     name="agent_directions",
-                    data_type=ShaderVarTypes.FLOAT,
+                    data_type=ShaderVarTypes.VEC2,
                     array_size=(len(agent_directions)),
                     array_buffer=3,
                     value=agent_directions,
@@ -49,27 +50,37 @@ class SlimeRenderer():
             group_sizes=(1, 1),
             shader_vars=[[
                 ShaderVariable(
-                    name="PositionImage",
+                    name="SlimeInputImage",
                     data_type=ShaderVarTypes.IMAGE,
-                    array_buffer=6,
-                    value=Image.new("RGBA", window_size, (0, 0, 0, 255)),
+                    array_buffer=0,
+                    value=Image.frombytes(
+                        'RGBA',
+                        self.slime_renderer.renderer.input_texture.size,
+                        self.slime_renderer.renderer.input_texture.read()
+                    ),
                 )
             ]],
             start_buffer=4
         )
-        self.agent_renderer.run_shader()
-        self.agent_renderer.get_shader_variable("PositionImage").save("test.png")
 
     
     def update(self):
-        self.move_agents()
+        # self.set_agent_image()
         self.slime_renderer.run_shader()
+        self.agent_renderer.run_shader()
 
     def set_agent_image(self):
-        """set the positions of the agents in `agent_image`."""
-        for i, position in enumerate(self.slime_renderer.get_shader_variable("agent_positions")):
-            x, y = int(position[0]), int(position[1])
-            self.agent_image.putpixel((i, 0), (int(255 * x / self.window_size[0]), int(255 * y / self.window_size[1]), 0, 255))
+        """set the positions and directions of the agents in `agent_image`."""
+        velocities = self.slime_renderer.get_shader_variable("agent_directions")
+        for i, coords in enumerate(self.slime_renderer.get_shader_variable("agent_positions")):
+            x, y = float(coords[0]), float(coords[1])
+            x_vel, y_vel = float(velocities[i][0]), float(velocities[i][1])
+            print(f"Agent {i}: Position=({int(256 * x / self.window_size[0])}, {int(256 * y / self.window_size[1])}), Velocity=({int(128 * (x_vel+1))}, {int(128 * (y_vel+1))})")
+            self.agent_image.putpixel((i, 0), (
+                int(256 * x / self.window_size[0]),
+                int(256 * y / self.window_size[1]),
+                int(128 * (x_vel+1)),
+                int(128 * (y_vel+1))))
 
     def move_agents(self):
         """moves the agents according to their directions."""
@@ -85,6 +96,7 @@ class SlimeRenderer():
             agent_positions[i] = (x, y)
         
         self.slime_renderer.set_shader_variable("agent_positions", agent_positions)
+        self.set_agent_image()
 
 
 if __name__ == '__main__':
@@ -108,8 +120,8 @@ if __name__ == '__main__':
     agent_positions: list[tuple[float, float]] = []
     agent_directions:float = []
     for i in range(10):
-        agent_positions.append((rng.randint(0, window_size[0]), rng.randint(0, window_size[1])))
-        agent_directions.append(rng.uniform(0, 360))
+        agent_positions.append(Vector2(rng.randint(0, window_size[0]), rng.randint(0, window_size[1])))
+        agent_directions.append((rng.randint(-1, 2), rng.randint(-1, 2)))
 
     renderer = SlimeRenderer(
         agent_positions=agent_positions,
