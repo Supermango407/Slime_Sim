@@ -12,15 +12,15 @@ from spmg import Gameobject, Renderer, Canvas_Renderer, ShaderVariable, ShaderVa
 
 class SlimeRenderer():
     def __init__(self,
-    agent_coords:list[tuple[float, float]]=None,
     window_size:tuple[int, int]=None,
+    agent_number:int=2000,
     ):
         self.window_size = window_size
         self.slime_renderer = Canvas_Renderer(
-            shader_paths=["slime_renderer.glsl"],
+            shader_paths=["slime_renderer.glsl", "clear.glsl"],
             anchor=Vector2(0.5, 0.5),
             relative_position=Vector2(0.5, 0.5),
-            group_sizes=[(16, 16)],
+            group_sizes=[(16, 16), (1, 1)],
             size=Vector2(self.window_size[0], self.window_size[1]),
             default_color=(0, 0, 0, 255),
             # shader_vars=[[
@@ -43,12 +43,13 @@ class SlimeRenderer():
 
         # self.agent_image = Image.new("RGBA", (len(agent_positions), 1), (0, 0, 0, 255))
         # self.set_agent_image(positions=agent_positions, velocities=agent_directions)
-        agent_array = numpy.array(agent_coords, dtype=numpy.float32)
+        # agent_array = numpy.array(agent_coords, dtype=numpy.float32)
 
         self.agent_renderer = Renderer(
-            shader_paths=["agent_renderer.glsl"],
-            texture_default_value=agent_array,
-            group_sizes=(1, 1),
+            shader_paths=["agent_renderer.glsl", "random_agents.glsl"],
+            texture_size=(agent_number, 1),
+            default_color=(0, 0, 1, 0),
+            group_sizes=[(1, 1), (1, 1)],
             shader_vars=[[
                 ShaderVariable(
                     name="SlimeInputImage",
@@ -62,14 +63,15 @@ class SlimeRenderer():
                 )
             ]],
             start_buffer=4,
-            texture_type=ShaderVarTypes.VEC4,
-            test=True
+            texture_type=ShaderVarTypes.VEC4
         )
-        # self.agent_renderer.run_shader()
+        self.agent_renderer.run_shader(1)
+        # self.slime_renderer.run_shader(1)
 
     def update(self):
-        self.slime_renderer.run_shader()
+        # self.slime_renderer.run_shader(1)
         self.agent_renderer.run_shader()
+        self.slime_renderer.run_shader()
 
     def set_agent_image(self, positions:list[tuple[float, float]], velocities:list[tuple[float, float]]):
         """set the positions and directions of the agents in `agent_image`."""
@@ -111,7 +113,8 @@ if __name__ == '__main__':
     pygame.display.set_caption("Slime Simulation")
 
     # Set global vars
-    window_size = (1056, 544)
+    # window_size = (1024, 512)
+    window_size = (512, 512)
     window = pygame.display.set_mode(window_size)
     clock = pygame.time.Clock()
     Gameobject.static_start(window)
@@ -119,18 +122,18 @@ if __name__ == '__main__':
     seed = 0
     rng = random.Random(seed)
 
-    agent_coords: list[tuple[float, float]] = []
-    for i in range(100):
-        velocity = Vector2(1, 0).rotate(rng.random()*360)
-        agent_coords.append((
-            rng.random(),
-            rng.random(),
-            velocity.x,
-            velocity.y,
-        ))
+    # agent_coords: list[tuple[float, float]] = []
+    # for i in range(1000):
+    #     velocity = Vector2(1, 0).rotate(rng.random()*360)
+    #     agent_coords.append((
+    #         rng.random(),
+    #         rng.random(),
+    #         velocity.x,
+    #         velocity.y,
+    #     ))
 
     renderer = SlimeRenderer(
-        agent_coords=agent_coords,
+        # agent_coords=agent_coords,
         window_size=window_size
     )
 

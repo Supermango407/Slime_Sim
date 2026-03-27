@@ -15,20 +15,19 @@ layout (rgba8, binding = 1) uniform writeonly image2D OutputImage;
 //     vec2 values[];
 // } agent_directions;
 
+vec4 hash(vec2 p) {
+    vec4 p4 = fract(vec4(p.xyxy) * vec4(.1031, .1030, .0973, .1099));
+    p4 += dot(p4, p4.wzxy + 33.33);
+    return fract((p4.xxyz + p4.yzzw) * p4.zywx);
+}
+
 void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
     
     vec4 color = imageLoad(InputImage, global_id.xy);
+    color = vec4(hash(global_id).rgb, 1); // Set the color to a random value based on the pixel's coordinates
 
-    // Average the color with its neighbors to create a blur effect
-    color.rgb += imageLoad(InputImage, global_id.xy+ivec2(1, 0)).rgb;
-    color.rgb += imageLoad(InputImage, global_id.xy+ivec2(0, -1)).rgb;
-    color.rgb += imageLoad(InputImage, global_id.xy+ivec2(0, 1)).rgb;
-    color.rgb += imageLoad(InputImage, global_id.xy+ivec2(-1, 0)).rgb;
-    color.rgb /= 5.0;
-
-    // subtract a small amount from the color to create a fading effect
-    color.rgb -= 0.00390625; // 1/256
+    // color.rgb = vec3(0, 0, 0); // Clear the image by setting all pixels to black
 
     imageStore(OutputImage, global_id, color);
 }
