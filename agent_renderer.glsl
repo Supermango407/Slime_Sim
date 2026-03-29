@@ -7,7 +7,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 layout (rgba32f, binding = 4) uniform readonly image2D InputImage;
 layout (rgba32f, binding = 5) uniform writeonly image2D OutputImage;
 
-layout (rgba8, binding = 0) uniform image2D SlimeInputImage;
+layout (rgba32f, binding = 0) uniform image2D SlimeInputImage;
 
 ivec2 screen_space (vec2 pos, vec2 size) {
     return ivec2(int(pos.x * size.x), int(pos.y * size.y));

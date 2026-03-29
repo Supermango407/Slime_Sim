@@ -66,6 +66,8 @@ class SlimeRenderer():
             texture_type=ShaderVarTypes.VEC4
         )
         self.agent_renderer.run_shader(1)
+        self.agent_renderer.run_shader()
+        pass
         # self.slime_renderer.run_shader(1)
 
     def update(self):

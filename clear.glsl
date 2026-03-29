@@ -4,8 +4,8 @@
 // from the image size and these values.
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
-layout (rgba8, binding = 0) uniform readonly image2D InputImage;
-layout (rgba8, binding = 1) uniform writeonly image2D OutputImage;
+layout (rgba32f, binding = 0) uniform readonly image2D InputImage;
+layout (rgba32f, binding = 1) uniform writeonly image2D OutputImage;
 
 // layout(std430, binding = 2) buffer PosBuffer {
 //     vec2 values[];

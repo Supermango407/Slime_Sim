@@ -4,8 +4,8 @@
 // from the image size and these values.
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
-layout (rgba8, binding = 0) uniform readonly image2D InputImage;
-layout (rgba8, binding = 1) uniform writeonly image2D OutputImage;
+layout (rgba32f, binding = 0) uniform readonly image2D InputImage;
+layout (rgba32f, binding = 1) uniform writeonly image2D OutputImage;
 
 // layout(std430, binding = 2) buffer PosBuffer {
 //     vec2 values[];
@@ -28,7 +28,8 @@ void main() {
     color.rgb /= 5.0;
 
     // subtract a small amount from the color to create a fading effect
-    color.rgb -= 0.00390625; // 1/256
+    float fade = 0.00390625; // 1/256
+    color.rgb = vec3(max(0, color.r-fade), max(0, color.g-fade), max(0, color.b-fade));
 
     imageStore(OutputImage, global_id, color);
 }
