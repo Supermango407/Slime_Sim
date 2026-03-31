@@ -23,12 +23,10 @@ void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
     
     // the rg/xy values are the xy position of the agent,
-    // and the ba/zw value is the direction
+    // and the b/z value is the direction
     vec4 agent_coords = imageLoad(InputImage, global_id.xy);
     vec4 random = hash(global_id+ivec2(1, 1));
-    agent_coords.xy = random.rg; // move the agent in a random direction
-
-    agent_coords.zw = rotate(agent_coords.zw, random.b*6.28318);
+    agent_coords.xyz = random.xyz; // move the agent to a random place and direction
 
     // save the agent's new cords
     imageStore(OutputImage, global_id, agent_coords);

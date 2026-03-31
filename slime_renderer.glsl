@@ -18,14 +18,14 @@ layout (rgba32f, binding = 1) uniform writeonly image2D OutputImage;
 void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
     
-    vec4 color = imageLoad(InputImage, global_id.xy);
+    vec4 color = vec4(0, 0, 0, 1.0);
 
     // Average the color with its neighbors to create a blur effect
-    color.rgb += imageLoad(InputImage, global_id.xy+ivec2(1, 0)).rgb;
-    color.rgb += imageLoad(InputImage, global_id.xy+ivec2(0, -1)).rgb;
-    color.rgb += imageLoad(InputImage, global_id.xy+ivec2(0, 1)).rgb;
-    color.rgb += imageLoad(InputImage, global_id.xy+ivec2(-1, 0)).rgb;
-    color.rgb /= 5.0;
+    for (int i=-1; i < 2; i++) {
+        for (int j=-1; j < 2; j++) {
+            color.rgb += (imageLoad(InputImage, global_id.xy+ivec2(i, j)).rgb)/9.0;
+        }
+    }
 
     // subtract a small amount from the color to create a fading effect
     float fade = 0.00390625; // 1/256

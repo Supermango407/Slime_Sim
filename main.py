@@ -13,7 +13,7 @@ from spmg import Gameobject, Renderer, Canvas_Renderer, ShaderVariable, ShaderVa
 class SlimeRenderer():
     def __init__(self,
     window_size:tuple[int, int]=None,
-    agent_number:int=2000,
+    agent_number:int=10,
     ):
         self.window_size = window_size
         self.slime_renderer = Canvas_Renderer(
@@ -21,7 +21,8 @@ class SlimeRenderer():
             anchor=Vector2(0.5, 0.5),
             relative_position=Vector2(0.5, 0.5),
             group_sizes=[(16, 16), (1, 1)],
-            size=Vector2(self.window_size[0], self.window_size[1]),
+            texture_size=(self.window_size[0]//8, self.window_size[1]//8),
+            scaler=8,
             default_color=(0, 0, 0, 255),
             # shader_vars=[[
             #     ShaderVariable(
@@ -67,13 +68,13 @@ class SlimeRenderer():
         )
         self.agent_renderer.run_shader(1)
         self.agent_renderer.run_shader()
-        pass
         # self.slime_renderer.run_shader(1)
 
     def update(self):
         # self.slime_renderer.run_shader(1)
-        self.agent_renderer.run_shader()
         self.slime_renderer.run_shader()
+        self.agent_renderer.run_shader()
+        self.slime_renderer.update_image()
 
     def set_agent_image(self, positions:list[tuple[float, float]], velocities:list[tuple[float, float]]):
         """set the positions and directions of the agents in `agent_image`."""
