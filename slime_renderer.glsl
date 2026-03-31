@@ -7,6 +7,8 @@ layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout (rgba32f, binding = 0) uniform readonly image2D InputImage;
 layout (rgba32f, binding = 1) uniform writeonly image2D OutputImage;
 
+uniform float subtract_rate = 0.015625;
+
 // layout(std430, binding = 2) buffer PosBuffer {
 //     vec2 values[];
 // } agent_positions;
@@ -28,7 +30,7 @@ void main() {
     }
 
     // subtract a small amount from the color to create a fading effect
-    float fade = 0.00390625; // 1/256
+    float fade = subtract_rate;
     color.rgb = vec3(max(0, color.r-fade), max(0, color.g-fade), max(0, color.b-fade));
 
     imageStore(OutputImage, global_id, color);

@@ -13,7 +13,8 @@ from spmg import Gameobject, Renderer, Canvas_Renderer, ShaderVariable, ShaderVa
 class SlimeRenderer():
     def __init__(self,
     window_size:tuple[int, int]=None,
-    agent_number:int=10,
+    agent_number:int=10000,
+    pixel_size:int = 2
     ):
         self.window_size = window_size
         self.slime_renderer = Canvas_Renderer(
@@ -21,8 +22,8 @@ class SlimeRenderer():
             anchor=Vector2(0.5, 0.5),
             relative_position=Vector2(0.5, 0.5),
             group_sizes=[(16, 16), (1, 1)],
-            texture_size=(self.window_size[0]//8, self.window_size[1]//8),
-            scaler=8,
+            texture_size=(self.window_size[0]//pixel_size, self.window_size[1]//pixel_size),
+            scaler=pixel_size,
             default_color=(0, 0, 0, 255),
             # shader_vars=[[
             #     ShaderVariable(
