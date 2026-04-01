@@ -25,7 +25,7 @@ void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
     
     vec4 color = imageLoad(InputImage, global_id.xy);
-    // color = vec4(hash(global_id).rgb, 1); // Set the color to a random value based on the pixel's coordinates
+    // color = vec4(hash(global_id.xy).rgb, 1); // Set the color to a random value based on the pixel's coordinates
 
     color.rgb = vec3(0, 0, 0); // Clear the image by setting all pixels to black
 

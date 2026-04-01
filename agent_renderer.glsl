@@ -2,15 +2,16 @@
 
 // Set local workgroup size. The total number of workgroups will be calculated
 // from the image size and these values.
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 10, local_size_y = 10, local_size_z = 1) in;
 
 layout (rgba32f, binding = 4) uniform readonly image2D InputImage;
 layout (rgba32f, binding = 5) uniform writeonly image2D OutputImage;
 
 layout (rgba32f, binding = 0) uniform image2D SlimeInputImage;
 
-uniform float speed = 2.0;
-uniform float turn_speed = 0.5;
+uniform float speed = 1.0;
+uniform float look_ahead = 4.0;
+uniform float turn_speed = 0.15;
 uniform float strength = 1.0;
 
 ivec2 screen_space (vec2 pos, vec2 screen_size) {
@@ -36,31 +37,41 @@ vec2 rotate(vec2 v, float angle) {
 
 float get_strength(vec2 position, vec2 screen_size, vec4 color) {
     ivec2 point = screen_space(position.xy, screen_size);
-    float value = 0.0;
-    value += imageLoad(SlimeInputImage, point).r/5.0;
-    value += imageLoad(SlimeInputImage, point+ivec2(0, 1)).r/5.0;
-    value += imageLoad(SlimeInputImage, point+ivec2(0, -1)).r/5.0;
-    value += imageLoad(SlimeInputImage, point+ivec2(1, 0)).r/5.0;
-    value += imageLoad(SlimeInputImage, point+ivec2(-1, 0)).r/5.0;
+    float value = imageLoad(SlimeInputImage, point).r;
+    // float value = 0.0;
+    // for (int i=-1; i < 2; i++) {
+    //     for (int j=-1; j < 2; j++) {
+    //         value += imageLoad(SlimeInputImage, point+ivec2(i, j)).r/9.0;
+    //         // imageStore(SlimeInputImage, point+ivec2(i, j), color);
+    //     }
+    // }
+    
+    // imageStore(SlimeInputImage, point, color);
     return value;
 }
 
 void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
-    
     // the rg/xy values are the xy position of the agent,
     // and the ba/zw value is the direction
     vec4 agent_coords = imageLoad(InputImage, global_id.xy);
     vec2 screen_size = imageSize(SlimeInputImage);
 
     vec4 rng = hash(agent_coords.xy);
-    float turn_random = pow(rng.r-0.5, 4)*2;
-    float right = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z+0.125, speed*2)/screen_size, screen_size, vec4(0, 1, 0, 1));
-    float left = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z-0.125, speed*2)/screen_size, screen_size, vec4(0, 0, 1, 1));
-    // left -= pow(rng.r, 1);
-    // right -= pow(rng.g, 1);
-
-    float turn = max(min(right-left+turn_random, 1), -1)*turn_speed;
+    float front = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z, speed*look_ahead)/screen_size, screen_size, vec4(0, 1, 1, 1));
+    float right = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z+0.125, speed*look_ahead)/screen_size, screen_size, vec4(0, 1, 0, 1));
+    float left = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z-0.125, speed*look_ahead)/screen_size, screen_size, vec4(0, 0, 1, 1));
+    // left *= 1-pow(rng.r, 8);
+    // right *= 1-pow(rng.b, 8);
+    
+    float turn = 0.0;
+    if (right > left && right > front){
+        turn = turn_speed;
+    } else if (left > right && left > front) {
+        turn = -turn_speed;
+    }
+    // turn += rng.r*turn_speed*0;
+    // float turn = max(min(right-left, 1), -1)*turn_speed;
     // float turn = 0.0125;
     agent_coords.z += turn;
     vec2 vel = vector_from_dir(agent_coords.z, speed)/screen_size;

@@ -13,15 +13,15 @@ from spmg import Gameobject, Renderer, Canvas_Renderer, ShaderVariable, ShaderVa
 class SlimeRenderer():
     def __init__(self,
     window_size:tuple[int, int]=None,
-    agent_number:int=10000,
-    pixel_size:int = 2
+    agent_scale=500, # the square root of the number of agents
+    pixel_size:int = 1
     ):
         self.window_size = window_size
         self.slime_renderer = Canvas_Renderer(
             shader_paths=["slime_renderer.glsl", "clear.glsl"],
             anchor=Vector2(0.5, 0.5),
             relative_position=Vector2(0.5, 0.5),
-            group_sizes=[(16, 16), (1, 1)],
+            group_sizes=[(16, 16), (16, 16)],
             texture_size=(self.window_size[0]//pixel_size, self.window_size[1]//pixel_size),
             scaler=pixel_size,
             default_color=(0, 0, 0, 255),
@@ -49,9 +49,9 @@ class SlimeRenderer():
 
         self.agent_renderer = Renderer(
             shader_paths=["agent_renderer.glsl", "random_agents.glsl"],
-            texture_size=(agent_number, 1),
+            texture_size=(agent_scale, agent_scale),
             default_color=(0, 0, 1, 0),
-            group_sizes=[(1, 1), (1, 1)],
+            group_sizes=[(10, 10), (10, 10)],
             shader_vars=[[
                 ShaderVariable(
                     name="SlimeInputImage",
@@ -68,14 +68,15 @@ class SlimeRenderer():
             texture_type=ShaderVarTypes.VEC4
         )
         self.agent_renderer.run_shader(1)
-        self.agent_renderer.run_shader()
+        # self.agent_renderer.run_shader()
+        # pass
         # self.slime_renderer.run_shader(1)
 
     def update(self):
         # self.slime_renderer.run_shader(1)
         self.slime_renderer.run_shader()
         self.agent_renderer.run_shader()
-        self.slime_renderer.update_image()
+        # self.slime_renderer.update_image()
 
     def set_agent_image(self, positions:list[tuple[float, float]], velocities:list[tuple[float, float]]):
         """set the positions and directions of the agents in `agent_image`."""
