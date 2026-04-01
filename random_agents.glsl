@@ -19,6 +19,15 @@ vec2 rotate(vec2 v, float angle) {
     return vec2(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a);
 }
 
+vec3 circle_coords(float radius, vec2 center, vec3 rng) {
+    float theta = rng.r*6.28318;
+    float r = radius * sqrt(rng.g);
+    vec2 point = vec2(center.r+r * cos(theta), center.g+r * sin(theta));
+    float a = 0.5+theta/6.28318;
+    
+    return vec3(point.xy, a);
+}
+
 void main() {
     ivec2 global_id = ivec2(gl_GlobalInvocationID.xy);
     
@@ -26,7 +35,9 @@ void main() {
     // and the b/z value is the direction
     vec4 agent_coords = imageLoad(InputImage, global_id.xy);
     vec4 random = hash(global_id+ivec2(1, 1));
-    agent_coords.xyz = random.xyz; // move the agent to a random place and direction
+    agent_coords.xyz = circle_coords(0.35, vec2(0.5, 0.5), random.rgb); // move the agent to a random place
+    // agent_coords.xyz = random.rgb; // move the agent to a random place
+    // agent_coords.z = random.b; // point in a random direction
 
     // save the agent's new cords
     imageStore(OutputImage, global_id, agent_coords);

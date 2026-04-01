@@ -10,9 +10,11 @@ layout (rgba32f, binding = 5) uniform writeonly image2D OutputImage;
 layout (rgba32f, binding = 0) uniform image2D SlimeInputImage;
 
 uniform float speed = 1.0;
-uniform float look_ahead = 4.0;
-uniform float turn_speed = 0.15;
+uniform float look_ahead = 8.0;
+uniform float look_angle = 0.125;
+uniform float turn_speed = 0.1;
 uniform float strength = 1.0;
+uniform float random_damping = 0.0625;
 
 ivec2 screen_space (vec2 pos, vec2 screen_size) {
     return ivec2(int(pos.x * screen_size.x), int(pos.y * screen_size.y));
@@ -59,10 +61,11 @@ void main() {
 
     vec4 rng = hash(agent_coords.xy);
     float front = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z, speed*look_ahead)/screen_size, screen_size, vec4(0, 1, 1, 1));
-    float right = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z+0.125, speed*look_ahead)/screen_size, screen_size, vec4(0, 1, 0, 1));
-    float left = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z-0.125, speed*look_ahead)/screen_size, screen_size, vec4(0, 0, 1, 1));
-    // left *= 1-pow(rng.r, 8);
-    // right *= 1-pow(rng.b, 8);
+    float right = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z+look_angle, speed*look_ahead)/screen_size, screen_size, vec4(0, 1, 0, 1));
+    float left = get_strength(agent_coords.xy+vector_from_dir(agent_coords.z-look_angle, speed*look_ahead)/screen_size, screen_size, vec4(0, 0, 1, 1));
+    // front += rng.r*turn_speed*random_damping;
+    // left += rng.g*turn_speed*random_damping;
+    // right += rng.b*turn_speed*random_damping;
     
     float turn = 0.0;
     if (right > left && right > front){
@@ -74,6 +77,7 @@ void main() {
     // float turn = max(min(right-left, 1), -1)*turn_speed;
     // float turn = 0.0125;
     agent_coords.z += turn;
+    agent_coords.z += (rng.a-0.5)*2*turn_speed*random_damping;
     vec2 vel = vector_from_dir(agent_coords.z, speed)/screen_size;
     
     // rotate based on color of directions
