@@ -35,7 +35,7 @@ void main() {
     // and the b/z value is the direction
     vec4 agent_coords = imageLoad(InputImage, global_id.xy);
     vec4 random = hash(global_id+ivec2(1, 1));
-    agent_coords.xyz = circle_coords(0.35, vec2(0.5, 0.5), random.rgb); // move the agent to a random place
+    agent_coords.xyz = circle_coords(0.5, vec2(0.5, 0.5), random.rgb); // move the agent to a random place
     // agent_coords.xyz = random.rgb; // move the agent to a random place
     // agent_coords.z = random.b; // point in a random direction
 

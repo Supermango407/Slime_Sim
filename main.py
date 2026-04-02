@@ -13,7 +13,7 @@ from spmg import Gameobject, Renderer, Canvas_Renderer, ShaderVariable, ShaderVa
 class SlimeRenderer():
     def __init__(self,
     window_size:tuple[int, int]=None,
-    agent_scale=500, # the square root of the number of agents
+    agent_scale=750, # the square root of the number of agents
     pixel_size:int = 1
     ):
         self.window_size = window_size
